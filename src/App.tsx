@@ -1,24 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-function useThrottle(val, delay) {
-  const [throttleval, setThrottleval] = useState(val);
-  const lastElapsed = useRef(Date.now());
-  useEffect(() => {
-    const handler = setTimeout(
-      () => {
-        const now = Date.now();
-        const timeElapsed = now - lastElapsed.current;
-        if (timeElapsed >= delay) {
-          setThrottleval(val);
-          lastElapsed.current = now;
-        }
-      },
-      delay - (Date.now() - lastElapsed.current),
-    );
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [val, delay]);
-  return throttleval;
+function useThrottle(fn, delay) {
+  const now = useRef(Date.now());
+  return function () {
+    if (Date.now() - now.current < delay) {
+      return;
+    }
+    fn();
+    now.current = Date.now();
+  };
 }
 export default function App() {
   const [winsize, setWinsize] = useState({
